@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en" data-ui-lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 跨源隔离垫片：GitHub Pages 无法设响应头，用 SW 客户端补 COOP/COEP 以启用 SharedArrayBuffer
+         （网页版识别的取消标志）。按 BASE_URL 取绝对路径（子路径部署与 /en/ 页共用一份，SW 作用域覆盖整站）；Tauri/dev 已原生发头
+         → 页面已隔离 → 脚本自动跳过。首次访问会自动多刷新一次。 -->
+    <script src="/coi-serviceworker.js"></script>
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <title>Dolce — Free Jianpu &amp; Staff Notation Editor · Image-to-Score Recognition · Playback &amp; Export</title>
+    <meta
+      name="description"
+      content="Free, open-source editor for jianpu (Chinese numbered musical notation). Type on the left and see the score update live, or edit notes, lyrics and chords right on the score, transpose, and manage choir parts. Turn photos, screenshots and PDFs — even four-part scores — into editable jianpu or staff notation on your own device (nothing is uploaded), then proofread side by side with the original. Supports 123, JP-Word (.jpwabc), Fanqie and Shigeben text jianpu, ABC and MusicXML; switch between jianpu and staff notation, play it back with loop and metronome, and export PPTX, PDF, PNG, MIDI and MusicXML. Runs in the browser, with Windows and macOS desktop apps, in English and Chinese."
+    />
+    <meta
+      name="keywords"
+      content="Dolce,jianpu,jianpu editor,numbered musical notation,numbered notation editor,cipher notation,Chinese music notation,sheet music editor,music notation software,jianpu to staff,staff to jianpu,MusicXML to jianpu,optical music recognition,OMR,image to sheet music,ABC notation,JP-Word,jpwabc,Fanqie jianpu,hymn jianpu,jianpu PowerPoint,jianpu MIDI,transpose jianpu,choir score editor,staff notation recognition,free music notation editor,open source"
+    />
+    <meta name="author" content="lodebar2026" />
+    <meta name="theme-color" content="#f5f5f5" />
+    <link rel="canonical" href="https://lodebar2026.github.io/dolce/en/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://lodebar2026.github.io/dolce/" />
+    <link rel="alternate" hreflang="en" href="https://lodebar2026.github.io/dolce/en/" />
+    <link rel="alternate" hreflang="x-default" href="https://lodebar2026.github.io/dolce/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Dolce" />
+    <meta property="og:title" content="Dolce — Free Jianpu Editor with Image Recognition and Staff View" />
+    <meta
+      property="og:description"
+      content="Write jianpu and see it typeset live, edit notes on the score, recognize photos and PDFs on your device, switch between jianpu and staff notation, play it back, and export PPTX, PDF, PNG, MIDI and MusicXML. Free and open source."
+    />
+    <meta property="og:url" content="https://lodebar2026.github.io/dolce/en/" />
+    <meta property="og:image" content="https://lodebar2026.github.io/dolce/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="zh_CN" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dolce — Free Jianpu Editor · Image Recognition · Jianpu + Staff" />
+    <meta
+      name="twitter:description"
+      content="Write jianpu with a live preview, edit on the score, recognize images on your device, view as staff notation, play back, and export PPTX/PDF/PNG/MIDI/MusicXML. Free and open source."
+    />
+    <meta name="twitter:image" content="https://lodebar2026.github.io/dolce/og-image.png" />
+
+    <!-- Structured data: SoftwareApplication + FAQ (search / AI engine friendly) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "name": "Dolce",
+          "alternateName": ["悦谱", "Dolce — Jianpu & Staff Notation Editor"],
+          "applicationCategory": "MultimediaApplication",
+          "applicationSubCategory": "Music notation editor",
+          "operatingSystem": "Windows, macOS, Web",
+          "inLanguage": ["en", "zh-CN"],
+          "softwareVersion": "0.8.8",
+          "url": "https://lodebar2026.github.io/dolce/en/",
+          "downloadUrl": "https://github.com/lodebar2026/dolce/releases",
+          "screenshot": "https://lodebar2026.github.io/dolce/og-image.png",
+          "description": "Free, open-source editor for jianpu (Chinese numbered musical notation): live typesetting as you type and direct editing on the score (lyrics, chords, dynamics, transposition, measure operations, a parts panel for choir scores); on-device recognition of jianpu and staff-notation photos, screenshots and PDFs, proofread over or beside the original image and saved as recognition projects; 123, JP-Word (.jpwabc), Fanqie and Shigeben text jianpu, ABC and MusicXML with conversion between them; jianpu, staff and mixed views; playback; export to PPTX, PDF, PNG, MIDI and MusicXML. Runs in the browser and on Windows / macOS, with English and Chinese interfaces.",
+          "featureList": [
+            "Live layout: type on the left, see the score on the right; click the score to jump to the code",
+            "Visual editing: change degrees, octaves, accidentals, durations, slurs and line breaks right on the score, via shortcuts (matching common notation software), a context menu or a symbol palette",
+            "Entry and editing: lyrics syllable by syllable, chord names, text and dynamics, tuplets; copy, paste and repeat; transpose the whole piece or a selection; jump to a measure",
+            "Measure operations: insert, append and delete measures; change key, time signature and tempo; barline styles, endings and jump marks",
+            "Parts panel for choir scores: add, reorder, rename, clefs, transposing instruments, split or merge closed scores, copy lyrics, hide parts; mute, solo and per-part volume",
+            "Image recognition: turn photos, screenshots and PDFs into editable jianpu on your device (nothing is uploaded), with lyrics aligned syllable by syllable and four-part scores split into voices",
+            "Compare view: proofread the result overlaid on the original image, with doubtful notes and syllables highlighted; click to jump to the code, edit in place and play it back",
+            "Side by side: the whole source page next to the typeset score with linked selection; the source pane can be hidden",
+            "Source pages: reorder, add, remove, rotate and crop the source images, then recognize again",
+            "Recognition projects (.dolce) keep the source images, result and edited score together; drafts are autosaved and can be restored",
+            "Staff recognition: staff PDFs with a text layer and scanned or photographed staff notation become MusicXML in the Staff / Mixed views; the staff-to-part mapping can be fixed without re-recognizing",
+            "The 123 format: plain-text jianpu that borrows ABC notation's header fields, repeats, endings and voices — easy to write by hand",
+            "Formats: 123, JP-Word (.jpwabc), Fanqie and Shigeben text jianpu, ABC and MusicXML, with Save As conversion that warns about anything lost",
+            "Four views: Expanded (one verse per page, for projection), As printed, Staff, and Mixed jianpu + staff",
+            "Beat check: measures that don't match the time signature are highlighted",
+            "Playback with pause, seeking, click-a-note-to-play, speed control, loop and metronome, in jianpu and staff views",
+            "Export to vector PPTX, PDF, PNG, MIDI and MusicXML",
+            "Re-break lines by phrase, paper and header font settings, songbook style sheets, Simplified/Traditional Chinese conversion",
+            "English and Chinese interface; browser version plus Windows / macOS desktop apps"
+          ],
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+          "license": "https://github.com/lodebar2026/dolce/blob/main/LICENSE",
+          "author": { "@type": "Person", "name": "lodebar2026" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is Dolce?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Dolce (悦谱) is a free, open-source editor and typesetter for jianpu — the numbered musical notation widely used in China — and staff notation. You type the score on the left and see it typeset live on the right, or click the score to edit notes directly. It can recognize jianpu images into editable scores, switch between jianpu, staff and mixed views, play the music back, and export PPTX, PDF, PNG, MIDI and MusicXML. It runs in the browser and as a Windows / macOS desktop app, in English or Chinese."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is jianpu (numbered musical notation)?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Jianpu writes the scale degrees do re mi fa so la ti as the digits 1–7, with 0 for a rest. Dots above or below a digit change the octave, underlines shorten a note, dashes lengthen it, and a line such as 1=G sets the key. It is the most common notation for songs and hymns in Chinese-speaking communities."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I turn a photo or screenshot of jianpu into an editable score?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Click “Recognize image” on the start page or drag an image or PDF onto the window. Notes, lyrics, title, key and time signature are recognized into an editable score in seconds to a few dozen seconds. Recognition runs entirely on your device, so nothing is uploaded. You can proofread the result overlaid on the original image (doubtful spots are highlighted in yellow, measures with wrong beat counts are circled) or beside it in the side-by-side view, and rotate, crop or reorder the source images and recognize again. Staff notation (PDFs, scans and photos) is recognized into MusicXML."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Which file formats does Dolce support?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "It opens and edits 123 jianpu, JP-Word .jpwabc, Fanqie text jianpu, Shigeben text jianpu (the “dynamic score” of the Shigeben app) and ABC notation, and opens MusicXML as staff notation or converts it to jianpu for editing. Save As converts between these formats and lists anything the target format can't hold before converting. Export adds PPTX, PDF, PNG, MIDI and MusicXML."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is the 123 jianpu format?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "123 (.123) is Dolce's main jianpu format, a plain-text jianpu dialect of ABC notation: header fields such as X:, T:, K:, M: and w:, plus repeats, endings, multiple voices and singing order, work as in ABC, while the notes are jianpu digits — 1–7 for the scale degrees, 0 for a rest, ' and , for octaves, _ to halve a note and - to add a beat. It's easy to write by hand, and scores converted from MusicXML, ABC, text jianpu or image recognition fit into it without loss."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I save a recognition and keep proofreading later?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Save it as a recognition project (.dolce): the source images, the recognition result and the score you are editing are stored together, and reopening it takes you straight back to the compare view without recognizing again. Drafts are also autosaved, so unsaved work can be restored after an unexpected close or reload."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can Dolce edit choir scores with several parts?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. The Parts panel adds, removes, reorders and renames parts, sets clefs and transposing instruments, splits a closed score (two voices on one staff) by voice or by chord or merges parts back, copies lyrics between parts and hides parts in the staff and mixed views. For playback you can mute or solo parts (handy for part practice) and set each part's volume."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How do I transpose a jianpu score?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Use Transpose on the score. Transposing the whole piece changes the key while jianpu digits stay the same (jianpu uses movable do); ABC and MusicXML notes move with it. You can also move just the selected notes up or down by semitones. It can be undone."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I convert between jianpu and staff notation?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Any jianpu score can be viewed and played in the Staff or Mixed (staff with a jianpu layer) view and exported as PDF, PNG or MusicXML. A single-part MusicXML file can be converted to jianpu when you open it; multi-part choir scores open in the Mixed view."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How do I make projection slides from a jianpu score?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Switch to the Expanded view, where repeats and verses are unrolled one verse per page, then choose Export → PPTX. You get vector slides, one per page, that stay editable in PowerPoint or Keynote."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is Dolce free? Does it work offline?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "It is free and open source under the MIT license. The browser version needs no installation, and the Windows / macOS desktop apps work offline, including image recognition."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "macOS says the app is damaged or from an unidentified developer. What should I do?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The app isn't signed with an Apple developer certificate, so macOS blocks it the first time. After dragging Dolce.app into Applications, open Terminal and run xattr -cr /Applications/Dolce.app, then open it normally. You can also use the browser version without installing anything."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+
+    <script type="module" crossorigin src="/assets/index-DWzM2IrC.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CpTUiDWe.css">
+  </head>
+  <body>
+    <div id="app" class="is-starting">
+      <header id="app-header">
+        <div class="header-left">
+          <button id="btn-home" class="button button-home" aria-label="Home" data-i18n-aria="header.home">
+            <span class="button-symbol" aria-hidden="true">←</span><span class="home-label" data-i18n="header.home">Home</span>
+          </button>
+          <div class="brand" aria-label="Dolce" data-i18n-aria="header.brandAria">
+            <img class="brand-mark" src="/favicon.svg" alt="" width="30" height="30" aria-hidden="true" />
+            <span class="brand-name">Dolce</span>
+            <span class="brand-subtitle" data-i18n="header.subtitle">Score Workbench</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <!-- 应用级的四项：宽屏排在顶栏，手机宽度收进「⋯」（toolpop.ts） -->
+          <button id="btn-header-more" class="button button-tool header-more" aria-expanded="false" aria-controls="header-tools" title="More" aria-label="More" data-i18n-title="header.more" data-i18n-aria="header.more">⋯</button>
+          <div id="header-tools" class="header-tools">
+            <button id="btn-parts" class="button button-tool" title="Parts: add, remove, reorder, rename, clef, split / merge shared staves, copy lyrics; playback mute / solo / volume" data-i18n-title="toolbar.parts.title" data-i18n="toolbar.parts">Parts</button>
+            <button id="btn-hanzi" class="button button-tool" title="Convert Chinese text in the source (Simplified ⇄ Traditional)" data-i18n-title="toolbar.hanzi.title" data-i18n="toolbar.hanzi">简/繁</button>
+            <button id="btn-options" class="button button-tool" data-i18n="toolbar.options">Settings</button>
+            <button id="btn-help" class="button button-tool" title="Features, the 123 format and notation guide" data-i18n-title="toolbar.help.title" data-i18n="toolbar.help">Help</button>
+          </div>
+          <span class="header-divider" aria-hidden="true"></span>
+          <button id="btn-save" class="button button-secondary" data-i18n="header.save">Save</button>
+          <button id="btn-saveas" class="button button-secondary" data-i18n="header.saveAs">Save As</button>
+          <button id="btn-export" class="button button-primary" data-i18n="header.export">Export</button>
+        </div>
+      </header>
+
+      <div id="toolbar" aria-label="Score toolbar" data-i18n-aria="toolbar.aria">
+        <div id="layout-tools" class="tool-group context-tool-group" hidden>
+          <span class="tool-label" data-i18n="toolbar.lines">Lines</span>
+          <div id="layout-mode-switch" class="layout-mode-switch" data-context-control aria-label="Line breaking" data-i18n-aria="toolbar.linesAria" hidden>
+            <button id="btn-layout-original" class="active" aria-pressed="true" title="Keep the line structure from import or recognition" data-i18n-title="toolbar.layoutOriginal.title" data-i18n="toolbar.layoutOriginal">Original</button>
+            <button id="btn-phrase" aria-pressed="false" title="Re-break lines by lyric and musical phrases" data-i18n-title="toolbar.phrase.title" data-i18n="toolbar.phrase">By phrase</button>
+            <span class="bars-per-line">
+              <button id="btn-bars" aria-pressed="false" title="Put a fixed number of bars on each line (pickup bar not counted, existing page breaks kept)" data-i18n-title="toolbar.bars.title" data-i18n="toolbar.bars">Every</button>
+              <select id="sel-bars-per-line" aria-label="Bars per line" data-i18n-aria="toolbar.barsCount"><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select>
+              <span class="bars-unit" data-i18n="toolbar.barsUnit">bars</span>
+            </span>
+          </div>
+        </div>
+        <div id="recognition-tools" class="tool-group context-tool-group" hidden>
+          <span class="tool-label" data-i18n="toolbar.recogGroup">Recognition</span>
+          <button id="btn-src-pages" data-context-control title="The images used for this recognition: reorder, remove, add, rotate, crop, then recognize again from these pages" data-i18n-title="toolbar.srcPages.title" data-i18n="toolbar.srcPages" hidden>Source pages</button>
+          <label id="recog-kind-field" class="toolbar-select-field" data-context-control hidden>
+            <span class="sr-only" data-i18n="toolbar.recogKind">Recognize as</span>
+            <select id="sel-recog-kind" title="Recognize as: auto / jianpu / staff. Changing it recognizes the same images again" aria-label="Recognize as" data-i18n-title="toolbar.recogKind.title" data-i18n-aria="toolbar.recogKind">
+              <option value="auto" data-i18n="recogKind.auto">Auto detect</option>
+              <option value="jianpu" data-i18n="recogKind.jianpuAs">As jianpu</option>
+              <option value="staff" data-i18n="recogKind.staffAs">As staff notation</option>
+            </select>
+            <span class="select-chevron" aria-hidden="true">⌄</span>
+          </label>
+        </div>
+        <div class="tool-group context-tool-group playback-tools">
+          <span class="tool-label" data-i18n="toolbar.listen">Playback</span>
+          <button id="btn-play" class="icon-text playback-button" aria-label="Play" data-i18n-aria="play.play">
+            <span class="playback-icon" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M2 0.8 L9.2 5 L2 9.2 Z" fill="currentColor"/></svg></span>
+            <span class="playback-label" data-i18n="play.play">Play</span>
+          </button>
+          <button id="btn-stop" class="icon-button playback-stop" title="Stop (back to the beginning)" aria-label="Stop" data-i18n-title="play.stop.title" data-i18n-aria="play.stop" disabled><svg class="playback-stop-icon" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.8" y="0.8" width="8.4" height="8.4" rx="1.2" fill="currentColor"/></svg></button>
+          <input id="play-progress" class="play-progress" type="range" min="0" max="1" step="any" value="0" aria-label="Playback position" data-i18n-aria="play.progress" disabled>
+          <button id="play-time" class="play-time" aria-label="Playback time" data-i18n-aria="play.time">0:00 / 0:00</button>
+          <label class="select-wrap">
+            <select id="sel-speed" aria-label="Playback speed" data-i18n-aria="play.speed"></select>
+            <span class="select-chevron" aria-hidden="true">⌄</span>
+          </label>
+          <button id="btn-loop" class="playback-toggle" aria-pressed="false" title="Loop playback: loops the selected passage, or the whole piece if nothing is selected" data-i18n-title="play.loop.title" data-i18n="play.loop">Loop</button>
+          <button id="btn-metronome" class="playback-toggle" aria-pressed="false" title="Metronome: clicks every beat during playback (higher on the downbeat)" data-i18n-title="play.metronome.title" data-i18n="play.metronome">Click</button>
+        </div>
+        <span class="toolbar-spacer"></span>
+        <div class="tool-group mobile-view-switch" aria-label="Workspace view" data-i18n-aria="toolbar.mobileView">
+          <button id="btn-mobile-code" aria-pressed="false" data-i18n="toolbar.mobileCode">Code</button>
+          <button id="btn-mobile-score" class="active" aria-pressed="true" data-i18n="toolbar.mobileScore">Preview</button>
+        </div>
+      </div>
+
+      <div id="body">
+        <section id="code-pane-shell" class="workspace-pane" aria-label="Source" data-i18n-aria="pane.code">
+          <div class="pane-heading">
+            <span data-i18n="pane.code">Source</span>
+            <span id="code-pane-meta" class="pane-meta">JPWABC</span>
+            <!-- 源码格式下拉：就在格式标签这个位置换着显示（识别结果、打开的文件都能切，顶掉标签） -->
+            <label id="doc-format-field" class="pane-select-field" data-context-control hidden>
+              <span class="sr-only" data-i18n="pane.docFormat">Source format</span>
+              <select id="sel-doc-format" title="Switch source format (recognition is not re-run; switch back to “Original” to restore an opened file)" aria-label="Source format" data-i18n-title="pane.docFormat.title" data-i18n-aria="pane.docFormat"></select>
+              <span class="select-chevron" aria-hidden="true">⌄</span>
+            </label>
+            <!-- 转换丢了什么、怎么回到原稿（editor/formatswitch.ts::DocFormatSource.note） -->
+            <span id="doc-format-note" class="pane-note" hidden></span>
+          </div>
+          <div id="code-pane"></div>
+        </section>
+        <!-- 三栏分隔条：拖动改宽度、双击复位（editor/splitters.ts） -->
+        <div id="split-code" class="pane-splitter" role="separator" aria-orientation="vertical" title="Drag to resize; double-click to reset" data-i18n-title="pane.splitter.title"></div>
+        <section id="score-pane-shell" class="workspace-pane" aria-label="Score" data-i18n-aria="pane.score">
+          <div class="pane-heading">
+            <span data-i18n="pane.score">Score</span>
+            <div class="pane-heading-actions">
+              <span id="visual-mode" class="visual-mode" title="Visual editing: Edit mode (block cursor) changes the selected element, Insert mode (bar cursor) inserts at the cursor; toggle with Insert / Esc" data-i18n-title="pane.visualMode.title" hidden>编辑</span>
+              <button id="btn-palette" class="palette-button" aria-pressed="false" title="Symbol palette: click to enter notes, octaves, durations, marks and breaks" data-i18n-title="pane.palette.title" data-i18n="pane.palette">Palette</button>
+              <button id="btn-beat-check" class="beat-check-button" aria-pressed="true" title="Beat check: highlight measures whose length doesn't match the time signature" data-i18n-title="pane.beatCheck.title" data-i18n="pane.beatCheck">Beats</button>
+              <button id="btn-format-marks" class="format-marks-button" aria-pressed="true" title="Show formatting marks: line break ↵ and page break ⤓ (Ctrl/⌘+Shift+M)" data-i18n-title="pane.formatMarks.title">¶</button>
+              <div id="view-mode-switch" class="preview-mode-switch" aria-label="View mode" data-i18n-aria="view.aria">
+                <button id="btn-view-expanded" class="active" aria-pressed="true" title="Repeats and verses unrolled, one verse per page (for projection)" data-i18n-title="view.expanded.title" data-i18n="view.expanded">Projection</button>
+                <button id="btn-view-original" aria-pressed="false" title="Laid out as printed: verses stacked, repeats kept" data-i18n-title="view.original.title" data-i18n="view.original">Jianpu</button>
+                <button id="btn-view-staff" aria-pressed="false" title="Staff notation" data-i18n-title="view.staff.title" data-i18n="view.staff">Staff</button>
+                <button id="btn-view-mixed" aria-pressed="false" title="Staff notation with a jianpu layer" data-i18n-title="view.mixed.title" data-i18n="view.mixed">Mixed</button>
+              </div>
+            </div>
+          </div>
+          <div id="visual-palette" class="visual-palette" aria-label="Symbol palette" data-i18n-aria="pane.paletteAria" hidden></div>
+          <div id="score-pane"></div>
+          <div id="omr-follow" class="omr-follow" hidden></div>
+          <div id="omr-side" class="omr-side" hidden></div>
+          <div id="split-side" class="pane-splitter pane-splitter-abs" role="separator" aria-orientation="vertical" title="Drag to resize; double-click to reset" data-i18n-title="pane.splitter.title" hidden></div>
+        </section>
+
+        <section id="start-screen" aria-labelledby="start-title">
+          <div class="start-content">
+            <div class="start-heading">
+              <span class="eyebrow" data-i18n="start.eyebrow">Get started</span>
+              <h1 id="start-title" data-i18n="start.title">Bring in a score — edit it, export it</h1>
+              <p data-i18n="start.lead">On-device recognition, proofing, jianpu ⇄ staff views, playback and multi-format export.</p>
+            </div>
+            <div class="start-modes">
+              <button id="btn-start-image" class="start-mode start-mode-primary">
+                <span class="mode-icon" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 10.6667C24 12.1394 22.8061 13.3333 21.3333 13.3333C19.8605 13.3333 18.6667 12.1394 18.6667 10.6667C18.6667 9.19391 19.8605 8 21.3333 8C22.8061 8 24 9.19391 24 10.6667Z" fill="#fff"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M16.0765 1.66667H15.9235C12.8457 1.66665 10.4336 1.66664 8.55161 1.91967C6.62529 2.17865 5.10527 2.71911 3.91219 3.91219C2.71911 5.10527 2.17865 6.62529 1.91967 8.55161C1.66664 10.4336 1.66665 12.8456 1.66667 15.9235V16.0765C1.66665 19.1544 1.66664 21.5664 1.91967 23.4484C2.17865 25.3747 2.71911 26.8948 3.91219 28.0879C5.10527 29.2809 6.62529 29.8213 8.55161 30.0804C10.4336 30.3333 12.8456 30.3333 15.9235 30.3333H16.0765C19.1544 30.3333 21.5664 30.3333 23.4484 30.0804C25.3747 29.8213 26.8948 29.2809 28.0879 28.0879C29.2809 26.8948 29.8213 25.3747 30.0804 23.4484C30.3333 21.5664 30.3333 19.1544 30.3333 16.0765V15.9235C30.3333 12.8456 30.3333 10.4336 30.0804 8.55161C29.8213 6.62529 29.2809 5.10527 28.0879 3.91219C26.8948 2.71911 25.3747 2.17865 23.4484 1.91967C21.5664 1.66664 19.1544 1.66665 16.0765 1.66667ZM5.3264 5.3264C6.08593 4.56685 7.11356 4.131 8.81811 3.90183C10.5514 3.66879 12.829 3.66667 16 3.66667C19.1709 3.66667 21.4485 3.66879 23.1819 3.90183C24.8864 4.131 25.914 4.56685 26.6736 5.3264C27.4332 6.08593 27.8691 7.11356 28.0981 8.81811C28.3312 10.5514 28.3333 12.829 28.3333 16C28.3333 16.6003 28.3332 17.1685 28.3316 17.7072L28.0355 17.6663C24.2437 17.1412 20.774 19.1124 19.0072 22.0835C16.7279 16.3168 10.7046 12.3841 3.97431 13.3505L3.67329 13.3939C3.68844 11.5199 3.73824 10.0349 3.90183 8.81811C4.131 7.11356 4.56685 6.08593 5.3264 5.3264Z" fill="#fff"/>
+                  </svg>
+                </span>
+                <span class="mode-copy">
+                  <strong data-i18n="start.image">Recognize image</strong>
+                  <span data-i18n="start.image.sub">Upload a photo or scan</span>
+                  <small>PNG · JPG · WEBP · PDF</small>
+                </span>
+                <span class="mode-arrow" aria-hidden="true">→</span>
+              </button>
+              <button id="btn-start-score" class="start-mode">
+                <span class="mode-icon mode-icon-score" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11.3465 2.66668H20.6533C20.9633 2.6666 21.2009 2.66655 21.4087 2.68687C22.8857 2.83136 24.0948 3.71944 24.6075 4.91571H7.39237C7.90505 3.71944 9.11407 2.83136 10.5912 2.68687C10.7989 2.66655 11.0365 2.6666 11.3465 2.66668Z" fill="#333"/>
+                    <path d="M8.41403 6.29749C6.55985 6.29749 5.03951 7.41716 4.53213 8.90255C4.52156 8.93351 4.51141 8.96464 4.50172 8.99591C5.03259 8.83515 5.58508 8.73012 6.14436 8.65843C7.58487 8.47375 9.40532 8.47384 11.52 8.47396H20.7095C22.8241 8.47384 24.6447 8.47375 26.0852 8.65843C26.6444 8.73012 27.1969 8.83515 27.7277 8.99591C27.7181 8.96464 27.708 8.93351 27.6973 8.90255C27.19 7.41716 25.6696 6.29749 23.8155 6.29749H8.41403Z" fill="#333"/>
+                    <path d="M15 22.6667C15 22.1144 14.5523 21.6667 14 21.6667C13.4477 21.6667 13 22.1144 13 22.6667C13 23.2189 13.4477 23.6667 14 23.6667C14.5523 23.6667 15 23.2189 15 22.6667Z" fill="#333"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M11.5632 10.0561H20.4368C24.9365 10.0561 27.1864 10.0561 28.4503 11.3718C29.714 12.6876 29.4167 14.7205 28.822 18.7861L28.258 22.6415C27.7916 25.8299 27.5585 27.424 26.3623 28.3787C25.166 29.3333 23.4016 29.3333 19.8728 29.3333H12.1271C8.5984 29.3333 6.83404 29.3333 5.63779 28.3787C4.44153 27.424 4.20835 25.8299 3.74197 22.6415L3.17801 18.7861C2.58331 14.7204 2.28596 12.6876 3.54976 11.3718C4.81356 10.0561 7.06344 10.0561 11.5632 10.0561ZM17 14C17 13.4477 16.5523 13 16 13C15.4477 13 15 13.4477 15 14V19.8373C14.6872 19.7268 14.3507 19.6667 14 19.6667C12.3431 19.6667 11 21.0099 11 22.6667C11 24.3235 12.3431 25.6667 14 25.6667C15.6568 25.6667 17 24.3235 17 22.6667V17.7596C17.8936 18.4845 19.0156 19 20 19C20.5523 19 21 18.5523 21 18C21 17.4477 20.5523 17 20 17C19.5928 17 18.8193 16.7085 18.1113 16.0804C17.4205 15.4675 17 14.7181 17 14Z" fill="#333"/>
+                  </svg>
+                </span>
+                <span class="mode-copy">
+                  <strong data-i18n="start.score">Open score</strong>
+                  <span data-i18n="start.score.sub">Continue editing a score file</span>
+                  <small data-i18n="start.score.formats">123 · JPWABC · jianpu-ly · Text jianpu · MusicXML · ABC</small>
+                </span>
+                <span class="mode-arrow" aria-hidden="true">→</span>
+              </button>
+            </div>
+            <div class="start-footer">
+              <span class="privacy-note"><span aria-hidden="true">●</span> <span data-i18n="start.privacy">Images are recognized locally and never uploaded</span></span>
+              <label class="start-kind"><span data-i18n="start.recogKind">Recognize as</span>
+                <select id="sel-recog-kind-start" aria-label="Recognize as" data-i18n-aria="toolbar.recogKind">
+                  <option value="auto" data-i18n="recogKind.auto">Auto detect</option>
+                  <option value="jianpu" data-i18n="recogKind.jianpu">Jianpu</option>
+                  <option value="staff" data-i18n="recogKind.staff">Staff</option>
+                </select>
+              </label>
+              <label class="start-kind" title="After picking images, open Source pages first: rotate sideways photos, crop margins, order the pages, then start recognizing" data-i18n-title="start.adjustFirst.title">
+                <input id="chk-adjust-first" type="checkbox"> <span data-i18n="start.adjustFirst">Adjust images before recognizing</span>
+              </label>
+              <button id="btn-start-sample" class="sample-link" data-i18n="start.sample">Open a sample score</button>
+            </div>
+            <div id="start-feedback" hidden role="alert"></div>
+          </div>
+        </section>
+
+        <div id="recognition-progress" hidden aria-live="polite">
+          <div class="recognition-progress-card">
+            <span class="progress-spinner" aria-hidden="true"></span>
+            <div>
+              <strong data-i18n="start.progress">Recognizing and typesetting…</strong>
+              <span id="recognition-progress-detail" data-i18n="start.progress.sub">The editable score will appear when done</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer id="statusbar" class="statusbar">
+        <div id="status" class="status-text" role="status" aria-live="polite"></div>
+        <div class="status-items">
+          <span id="sel-info" class="sel-info" title="Selection: part, measure and beat, pitch, duration" data-i18n-title="pane.selInfo.title" hidden></span>
+          <span id="beat-count" class="beat-count" title="Click to jump to the next one" data-i18n-title="pane.beatCount.title" hidden></span>
+          <button id="btn-doubt" class="doubt-count" title="Notes and lyric characters the recognizer was unsure of (yellow boxes in the check view): click to go to the next one" data-i18n-title="toolbar.doubt.title" hidden></button>
+          <span class="status-sep status-sep-code" aria-hidden="true"></span>
+          <label class="status-check" title="Show the code pane (untick to hide it and give the score the full width; side by side then splits page and score in half)" data-i18n-title="status.code.title">
+            <input id="chk-code" type="checkbox" checked>
+            <span data-i18n="status.code">Source</span>
+          </label>
+          <!-- 核对方式统一一个下拉（editor/comparemode.ts）：不核对、排版稿里的并排 / 片段、核对视图的三种叠加。
+               下面隐藏的几个是它驱动的老控件（id 与接线不变，显隐仍表示「这一项现在能不能用」） -->
+          <label id="compare-field" class="status-select-field" hidden>
+            <span class="status-label" data-i18n="status.recogView">Proof</span>
+            <select id="sel-compare" title="How to proof against the source: off (score only), side by side, a source snippet, or an overlay in the proofing view" aria-label="Proofing" data-i18n-title="status.compare.title" data-i18n-aria="status.compare.aria">
+              <option value="none" data-i18n="status.compare.none">Off</option>
+              <option value="side" data-i18n="toolbar.srcSide">Side by side</option>
+              <option value="follow" data-i18n="toolbar.srcFollow">Source snippet</option>
+              <option value="floating" data-i18n="toolbar.recogView.floating">Nearby popup</option>
+              <option value="inplace" data-i18n="toolbar.recogView.inplace">Overlay in place</option>
+              <option value="original" data-i18n="toolbar.recogView.original">Original only</option>
+            </select>
+            <span class="select-chevron" aria-hidden="true">⌄</span>
+          </label>
+          <div class="compare-legacy" hidden>
+            <button id="btn-recognize" data-context-control title="Compare the recognition result with the uploaded image" data-i18n-title="toolbar.recognize.title" data-i18n="toolbar.recognize" hidden>Compare</button>
+            <button id="btn-src-side" data-context-control aria-pressed="false" title="Shows the full source page left of the engraved score: the selected note is boxed, and clicking a note on the source selects it in the score" data-i18n-title="toolbar.srcSide.title" data-i18n="toolbar.srcSide" hidden>Side by side</button>
+            <button id="btn-src-follow" data-context-control aria-pressed="false" title="When a note is selected in the score, a small window at the bottom right shows that line of the source with the note boxed" data-i18n-title="toolbar.srcFollow.title" data-i18n="toolbar.srcFollow" hidden>Source snippet</button>
+            <label id="recog-view-field" class="status-select-field" data-context-control hidden>
+              <span class="status-label" data-i18n="status.recogView">Proof</span>
+              <select id="sel-recog-view" title="Comparison view" aria-label="Comparison view" data-i18n-title="toolbar.recogView" data-i18n-aria="toolbar.recogView">
+                <option value="floating" data-i18n="toolbar.recogView.floating">Nearby popup</option>
+                <option value="inplace" data-i18n="toolbar.recogView.inplace">Overlay in place</option>
+                <option value="original" data-i18n="toolbar.recogView.original">Original only</option>
+              </select>
+              <span class="select-chevron" aria-hidden="true">⌄</span>
+            </label>
+          </div>
+          <span class="status-sep" aria-hidden="true"></span>
+          <div class="tool-group">
+            <span class="tool-label" data-i18n="toolbar.zoom">Zoom</span>
+            <button id="btn-zoom-out" class="icon-button" title="Zoom out (Ctrl/⌘ -)" aria-label="Zoom out" data-i18n-title="toolbar.zoomOut.title" data-i18n-aria="toolbar.zoomOut">−</button>
+            <button id="btn-zoom-reset" title="Reset (Ctrl/⌘ 0)" data-i18n-title="toolbar.zoomReset.title">100%</button>
+            <button id="btn-zoom-in" class="icon-button" title="Zoom in (Ctrl/⌘ +)" aria-label="Zoom in" data-i18n-title="toolbar.zoomIn.title" data-i18n-aria="toolbar.zoomIn">＋</button>
+          </div>
+          <div class="tool-group">
+            <span class="tool-label" data-i18n="toolbar.page">Page</span>
+            <button id="btn-prev" class="icon-button" title="Previous page" aria-label="Previous page" data-i18n-title="toolbar.prev" data-i18n-aria="toolbar.prev">‹</button>
+            <button id="btn-next" class="icon-button" title="Next page" aria-label="Next page" data-i18n-title="toolbar.next" data-i18n-aria="toolbar.next">›</button>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- hidden off-screen svg used for getBBox/getComputedTextLength measurement -->
+    <svg id="measure-svg" width="0" height="0" aria-hidden="true"></svg>
+  </body>
+</html>

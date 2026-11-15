@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 跨源隔离垫片：GitHub Pages 无法设响应头，用 SW 客户端补 COOP/COEP 以启用 SharedArrayBuffer
+         （网页版识别的取消标志）。按 BASE_URL 取绝对路径（子路径部署与 /en/ 页共用一份，SW 作用域覆盖整站）；Tauri/dev 已原生发头
+         → 页面已隔离 → 脚本自动跳过。首次访问会自动多刷新一次。 -->
+    <script src="/coi-serviceworker.js"></script>
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- seo:start —— 搜索/AI 引擎元数据（中文页）。英文页 /en/ 由 vite.config.ts 的 emitEnPage 换成 seo/head.en.html，
+         改这里请同步改英文版。 -->
+    <title>悦谱 Dolce — 123 简谱 / .jpwabc / 文本谱在线编辑排版 · 谱面可视化编辑 · 简谱与五线谱识别(OMR) · ABC · 简谱五线谱混排 | Dolce</title>
+    <meta
+      name="description"
+      content="悦谱 Dolce：开源的简谱与五线谱编辑、识谱与排版工具。左侧源码、右侧实时简谱，也能直接在谱面上改音符、录歌词与和弦、移调、按小节增删，合唱谱有声部面板；支持 123 简谱格式（简谱的 ABC 方言）、JP-Word .jpwabc、文本谱（番茄简谱 / 诗歌本「动态谱」）、ABC、jianpu-ly 文本谱与 MusicXML。本地离线识别简谱照片与 PDF（含四声部）及五线谱（PDF、扫描或拍照），原图对照 / 并排原图逐音校对、可疑处标黄，识别项目连原图一起存，投影 / 简谱 / 五线谱 / 混排四档排版，按乐句重排，在线试听（循环、节拍器、静音独奏声部），自动保存草稿，另存为互转，导出 PPTX / MIDI / MusicXML / PDF / PNG。浏览器即开即用，亦有 Windows/macOS 桌面版。An open-source jianpu (numbered musical notation) editor with visual editing, the 123 plain-text format, offline OMR, staff/jianpu mixed layout and playback."
+    />
+    <meta
+      name="keywords"
+      content="悦谱,Dolce,简谱,简谱编辑器,五线谱编辑,简谱排版,简谱软件,123格式,123简谱,简谱文本格式,简谱ABC,可视化编辑简谱,简谱识别,简谱图片转谱,四声部简谱识别,五线谱识别,简谱转五线谱,OMR,乐谱识别,ABC记谱,简谱五线谱混排,混排,数字谱,JP-Word,jpwabc,MusicXML,五线谱,乐谱播放,文本谱,番茄简谱,番茄简谱脚本,动态谱,诗歌本,诗歌本动态谱,简谱PPT,投影简谱,四声部简谱,简谱转MIDI,简繁转换,简谱移调,合唱谱,声部面板,歌词录入,原图对照,并排对照,识别项目,节拍器,循环播放,jianpu,jianpu editor,numbered notation,123 notation,optical music recognition,ABC notation,music notation editor,sheet music,fanqie jianpu,transpose,choir score,Tauri"
+    />
+    <meta name="author" content="lodebar2026" />
+    <meta name="theme-color" content="#f5f5f5" />
+    <link rel="canonical" href="https://lodebar2026.github.io/dolce/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://lodebar2026.github.io/dolce/" />
+    <link rel="alternate" hreflang="en" href="https://lodebar2026.github.io/dolce/en/" />
+    <link rel="alternate" hreflang="x-default" href="https://lodebar2026.github.io/dolce/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="悦谱 Dolce" />
+    <meta property="og:title" content="悦谱 Dolce — 123 简谱 · 谱面可视化编辑 · 简谱/五线谱识别(OMR) · 文本谱 · 简谱五线谱混排" />
+    <meta
+      property="og:description"
+      content="开源的简谱与五线谱编辑、识谱与排版工具：源码与谱面双向编辑，歌词和弦录入、移调、合唱声部面板，支持 123 简谱格式、.jpwabc、文本谱（番茄简谱 / 诗歌本动态谱）、ABC、MusicXML；本地离线识别简谱照片 / PDF（含四声部）与五线谱（PDF / 扫描），原图对照与并排原图逐音校对；四档排版、按乐句重排、在线试听，导出 PPTX/MIDI/MusicXML/PDF/PNG。即开即用，跨平台。"
+    />
+    <meta property="og:url" content="https://lodebar2026.github.io/dolce/" />
+    <meta property="og:image" content="https://lodebar2026.github.io/dolce/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:locale:alternate" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="悦谱 Dolce — 123 简谱 · 可视化编辑 · 简谱/五线谱识别 · 混排" />
+    <meta
+      name="twitter:description"
+      content="开源简谱编辑与排版器：123 简谱格式、谱面可视化编辑、本地离线识谱（简谱照片/PDF、四声部、五线谱 PDF 与扫描件）、简谱·五线谱混排、在线试听，导出 PPTX/MIDI/MusicXML/PDF/PNG。"
+    />
+    <meta name="twitter:image" content="https://lodebar2026.github.io/dolce/og-image.png" />
+
+
+    <!-- 结构化数据：软件应用 + 常见问答（GEO/AI 引擎友好） -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "name": "悦谱 Dolce",
+          "alternateName": ["Dolce", "悦谱", "Dolce — Jianpu & Staff Notation Editor"],
+          "applicationCategory": "MultimediaApplication",
+          "operatingSystem": "Windows, macOS, Web",
+          "softwareVersion": "0.8.8",
+          "inLanguage": ["zh-CN", "en"],
+          "url": "https://lodebar2026.github.io/dolce/",
+          "downloadUrl": "https://github.com/lodebar2026/dolce/releases",
+          "screenshot": "https://lodebar2026.github.io/dolce/og-image.png",
+          "description": "开源的简谱与五线谱编辑、识谱与排版工具：源码与谱面双向编辑（谱面可视化编辑，含歌词 / 和弦 / 力度录入、移调、小节操作与合唱声部面板）、123 简谱格式（简谱的 ABC 方言）、JP-Word .jpwabc、文本谱（番茄简谱脚本 / 诗歌本动态谱）、ABC、jianpu-ly 文本谱与 MusicXML；本地离线识别简谱照片与 PDF（含四声部）以及五线谱 PDF、扫描或拍照的五线谱，原图对照 / 并排原图校对，识别项目 .dolce 连原图保存；投影 / 简谱 / 五线谱 / 混排四档排版、按乐句重排、在线试听、另存为互转，导出 PPTX / MIDI / MusicXML / PDF / PNG。An open-source jianpu (numbered musical notation) editor and typesetter with visual editing, the 123 plain-text jianpu format (an ABC dialect), native Fanqie / Shigeben text scores, offline optical music recognition, mixed staff + jianpu layout and playback.",
+          "featureList": [
+            "源码编辑 + 实时排版预览：123、.jpwabc、文本谱（番茄简谱 / 诗歌本动态谱）、ABC、jianpu-ly 文本谱五种文本格式，语法高亮与诊断",
+            "123 简谱格式：简谱的 ABC 方言，字段头与反复、房号、多声部、演唱顺序沿用 ABC，音乐体用简谱数字，纯文本 UTF-8，适合手写",
+            "谱面可视化编辑：直接在谱面上改唱名、八度、升降号、时值、小节线、圆滑线 / 延音线、延长号、重音与换行换页，改动落回源码；键位对齐常见打谱软件",
+            "录入与编辑：歌词逐字录入、和弦名、文字与力度、连音；复制粘贴（跨格式按唱名重写）与 R 重复；全曲移调或选区移半音；按小节跳、跳到第几小节",
+            "小节操作：插入 / 追加 / 删除小节，换调号、拍号、速度，小节线样式、房号与跳转记号",
+            "声部面板（合唱谱）：增删、排序、改名、谱号、移调乐器、拆分 / 合并闭合谱、歌词复制、隐藏声部；试听静音、独奏、各声部音量",
+            "简谱图片识别（OMR）：照片、截图、扫描 PDF 转 123 简谱，含歌词逐字对位、页眉识别、四声部分声部；本地离线运行",
+            "原图对照核对：识别结果叠加在源图上逐音校对，没把握的音与字标黄、逐处跳转，点选定位源码，可直接试听、直接改谱",
+            "并排原图：排版稿左边铺整页原图、两边选中互通，可收起源码区；原图片段浮窗显示选中音所在的原图行",
+            "原图页：识别前后调整原图顺序、增删、旋转、裁剪，再整首重新识别",
+            "识别项目 .dolce：原图、识别结果与在改的谱一起存，重开不重新识别；自动保存草稿，意外关闭可恢复",
+            "五线谱识别：文字层完整的五线谱 PDF 与扫描 / 拍照的五线谱转 MusicXML，进五线谱 / 混排视图，原图对照上可直接改；谱表与声部的对应可在声部面板改",
+            "四档排版：投影（逐遍展开）、简谱（印刷）、五线谱、简谱与五线谱混排",
+            "按乐句重排：综合歌词标点与音乐信号重新断行，可一键还原",
+            "乐谱播放：光标跟随，暂停 / 拖进度 / 点音符定位，×0.5～×2 调速，循环选段、节拍器，各声部静音 / 独奏 / 音量",
+            "另存为：123 / JPWABC / ABC / 文本谱互转，转换前列出装不下的内容",
+            "导出：矢量 PPTX、MIDI、MusicXML；五线谱 / 混排导出 PDF、PNG",
+            "简繁转换、纸张与页眉字体设置、诗集样式表 .ss",
+            "跨平台：浏览器在线版 + Windows/macOS 桌面版",
+            "中英双语界面：按浏览器语言自动选择，设置里可切换；英文版入口 https://lodebar2026.github.io/dolce/en/"
+          ],
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+          "license": "https://github.com/lodebar2026/dolce/blob/main/LICENSE",
+          "author": { "@type": "Person", "name": "lodebar2026" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "什么是悦谱 Dolce？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "悦谱（Dolce）是一款开源的简谱与五线谱编辑、识谱与排版工具。左侧编辑源码、右侧实时渲染简谱，也能直接在谱面上改音符；支持 123、.jpwabc、文本谱、ABC、MusicXML 等格式，能识别简谱与五线谱图片 / PDF，可排成简谱、五线谱或两者混排，在线试听，导出 PPTX、MIDI、MusicXML、PDF、PNG。既有浏览器在线版，也有 Windows/macOS 桌面版。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "什么是 123 简谱格式？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "123 是悦谱的简谱主格式（扩展名 .123），可以看作简谱的 ABC 方言：X:、T:、K:、M:、w: 等字段头以及反复、房号、多声部、演唱顺序沿用 ABC 记谱，音乐体换成简谱数字——1–7 是唱名、0 是休止，' 和 , 表示高低八度，_ 是减时线，- 是增时线，歌词写在 w: 行、汉字连写每字一音。它是 UTF-8 纯文本，适合手写，也能无损承载从 MusicXML、ABC、文本谱和图片识别转来的谱。完整规范见 https://github.com/lodebar2026/dolce/blob/main/docs/%E6%A0%BC%E5%BC%8F/123%E6%A0%BC%E5%BC%8F.md ，编辑器「帮助 → 123 格式」有带实时渲染的教程。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "能直接在谱面上修改音符吗？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "可以。悦谱支持谱面可视化编辑：点选音符后用键盘、右键菜单或记号面板修改唱名、八度、升降号、时值、增时线、小节线、圆滑线 / 延音线、延长号、重音，以及插入、删除音符和换行换页。每次修改都写回源码（123 / ABC / .jpwabc / 文本谱均支持），与代码区共用撤销。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": ".jpwabc 是什么格式？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": ".jpwabc 是 JP-Word 简谱软件使用的文本谱面格式，按 .Title/.Voice/.Words 等段描述标题、调号拍号、音符与歌词。悦谱可直接打开、编辑并存回 .jpwabc（UTF-16LE 带 BOM，与 JP-Word 兼容），也能另存为 123 等其它格式。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "悦谱能识别简谱图片吗？（OMR）",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "可以。把简谱照片、截图或扫描 PDF 拖进页面即可识别成 123 简谱并排版：数字与歌词用 PaddleOCR 模型识别，歌词逐字与音符对位，还能识别标题、词曲与调号，四声部简谱会按声部分开。识别完全在浏览器 / 桌面本地运行、可离线，图片不上传。识别后可在「原图对照」里把结果叠在源图上逐音核对（没把握的地方标黄）、直接改谱和试听，也可打开「并排原图」边看原图边校对；识别前后都能在「原图页」里旋转、裁剪、排序原图再重新识别。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "悦谱能识别五线谱吗？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "文字层完整的五线谱 PDF（由制谱软件导出的那种）可以识别成 MusicXML；扫描或拍照的五线谱图片 / PDF 也能识别（独唱谱较可靠，合唱谱扫描件需要较多校对）。识别结果进入五线谱或混排视图，可在原图对照上逐音核对、直接在谱面上改，可试听、导出 MusicXML / MIDI / PDF / PNG。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "识别到一半能保存、下次接着校对吗？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "能。识别过的谱可以保存为识别项目（.dolce）：原图、识别结果与正在修改的谱存在一起，重新打开后直接回到原图对照接着校对，不必重新识别。另外编辑器会自动保存草稿，意外关闭或刷新后重开时可恢复。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "悦谱能编辑合唱谱（多声部）吗？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "能。「声部」面板可以增删、排序、改名声部，设谱号和移调乐器，把一行谱上的两个声部（闭合谱）按声线或按和弦拆开、或合并回去，在声部之间复制歌词，在五线谱 / 混排里隐藏某个声部；试听时可静音、独奏（练声部）、调各声部音量，还能选简谱旋律和歌词取自哪个声部。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "怎么给简谱移调？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "在谱面上用「移调」（编辑菜单或快捷键）：可以全曲换调——简谱是首调唱名，只改调号、数字不变，ABC 和 MusicXML 的音一起移过去；也可以只把选中的音上下移几个半音。移调可撤销。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "如何把 MusicXML 转成简谱？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "在悦谱中打开或拖入 .musicxml/.xml 文件：单声部谱可以选择转成 123、JPWABC、ABC 或文本谱继续编辑，也可以保持 MusicXML 用「五线谱」或「混排」视图查看；多声部谱直接进五线谱 / 混排视图，混排会在五线谱上叠一层简谱。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "悦谱支持 ABC 记谱（ABC notation）吗？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "支持。.abc 文件由悦谱原生解析，打开即排为简谱，可以直接编辑、存回原文，源码与谱面双向定位到音符；支持多声部（含 & 临时多声部）、连奏、反复 / 房号、和弦、装饰音、歌词、调号变更等。也可以另存为 123 或其它格式。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "悦谱支持番茄简谱和诗歌本动态谱吗？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "支持。悦谱把这两套「文本谱」当作第一等源格式：番茄简谱脚本，以及诗歌本文本谱——也就是《诗歌本》app 里所说的「动态谱」。打开或拖入即可直接编辑原文，编辑器自动识别方言并给出语法高亮与诊断，可在「简谱」（与印刷版一致）和「投影」（16:9 分页，投影用）版面之间切换，支持四声部并排、和弦、力度、倚音、跳房子等记号；可另存为 123 / JPWABC / ABC，导出 MusicXML、MIDI、矢量 PPTX，也能直接试听。"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "悦谱支持英文界面吗？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "支持。界面有中文和英文两种，首次打开按浏览器语言自动选择，也可以在「设置 → 其他 → 界面语言」随时切换，即时生效。英文版入口：https://lodebar2026.github.io/dolce/en/"
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "macOS 提示「已损坏」或「无法验证开发者」怎么办？",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "因应用未购买苹果开发者签名，首次打开会被拦截。把 Dolce.app 拖入「应用程序」后，打开「终端」运行 xattr -cr /Applications/Dolce.app 清除隔离标记即可正常打开；该命令对所有 macOS 版本通用。或者直接使用浏览器在线版，无需安装。"
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+    <!-- seo:end -->
+
+    <script type="module" crossorigin src="/assets/index-DWzM2IrC.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CpTUiDWe.css">
+  </head>
+  <body>
+    <div id="app" class="is-starting">
+      <header id="app-header">
+        <div class="header-left">
+          <button id="btn-home" class="button button-home" aria-label="返回开始" data-i18n-aria="header.home">
+            <span class="button-symbol" aria-hidden="true">←</span><span class="home-label" data-i18n="header.home">返回开始</span>
+          </button>
+          <div class="brand" aria-label="悦谱 Dolce" data-i18n-aria="header.brandAria">
+            <img class="brand-mark" src="/favicon.svg" alt="" width="30" height="30" aria-hidden="true" />
+            <span class="brand-name">Dolce</span>
+            <span class="brand-subtitle" data-i18n="header.subtitle">乐谱工作台</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <!-- 应用级的四项：宽屏排在顶栏，手机宽度收进「⋯」（toolpop.ts） -->
+          <button id="btn-header-more" class="button button-tool header-more" aria-expanded="false" aria-controls="header-tools" title="更多" aria-label="更多" data-i18n-title="header.more" data-i18n-aria="header.more">⋯</button>
+          <div id="header-tools" class="header-tools">
+            <button id="btn-parts" class="button button-tool" title="声部：增删、排序、改名、谱号、拆合闭合谱、歌词复制；试听静音 / 独奏 / 音量" data-i18n-title="toolbar.parts.title" data-i18n="toolbar.parts">声部</button>
+            <button id="btn-hanzi" class="button button-tool" title="整篇转换源码中的中文（简体 ⇄ 繁体）" data-i18n-title="toolbar.hanzi.title" data-i18n="toolbar.hanzi">简繁</button>
+            <button id="btn-options" class="button button-tool" data-i18n="toolbar.options">设置</button>
+            <button id="btn-help" class="button button-tool" title="功能帮助、123 格式与记谱法说明" data-i18n-title="toolbar.help.title" data-i18n="toolbar.help">帮助</button>
+          </div>
+          <span class="header-divider" aria-hidden="true"></span>
+          <button id="btn-save" class="button button-secondary" data-i18n="header.save">保存</button>
+          <button id="btn-saveas" class="button button-secondary" data-i18n="header.saveAs">另存为</button>
+          <button id="btn-export" class="button button-primary" data-i18n="header.export">导出</button>
+        </div>
+      </header>
+
+      <div id="toolbar" aria-label="乐谱工具栏" data-i18n-aria="toolbar.aria">
+        <div id="layout-tools" class="tool-group context-tool-group" hidden>
+          <span class="tool-label" data-i18n="toolbar.lines">分行</span>
+          <div id="layout-mode-switch" class="layout-mode-switch" data-context-control aria-label="分行方式" data-i18n-aria="toolbar.linesAria" hidden>
+            <button id="btn-layout-original" class="active" aria-pressed="true" title="保留导入或识别时的行结构" data-i18n-title="toolbar.layoutOriginal.title" data-i18n="toolbar.layoutOriginal">原始排版</button>
+            <button id="btn-phrase" aria-pressed="false" title="根据歌词和音乐乐句重新安排换行" data-i18n-title="toolbar.phrase.title" data-i18n="toolbar.phrase">按乐句重排</button>
+            <span class="bars-per-line">
+              <button id="btn-bars" aria-pressed="false" title="每行固定放几个小节（弱起不计，原有换页保留）" data-i18n-title="toolbar.bars.title" data-i18n="toolbar.bars">每行</button>
+              <select id="sel-bars-per-line" aria-label="每行小节数" data-i18n-aria="toolbar.barsCount"><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option></select>
+              <span class="bars-unit" data-i18n="toolbar.barsUnit">小节</span>
+            </span>
+          </div>
+        </div>
+        <div id="recognition-tools" class="tool-group context-tool-group" hidden>
+          <span class="tool-label" data-i18n="toolbar.recogGroup">识别</span>
+          <button id="btn-src-pages" data-context-control title="这次识别用的原图：调顺序、删减、加图、旋转、裁剪，再按这些页重新识别" data-i18n-title="toolbar.srcPages.title" data-i18n="toolbar.srcPages" hidden>原图页</button>
+          <label id="recog-kind-field" class="toolbar-select-field" data-context-control hidden>
+            <span class="sr-only" data-i18n="toolbar.recogKind">识别类型</span>
+            <select id="sel-recog-kind" title="识别为：自动判断 / 简谱 / 五线谱。改了就用刚才那份图重新识别" aria-label="识别类型" data-i18n-title="toolbar.recogKind.title" data-i18n-aria="toolbar.recogKind">
+              <option value="auto" data-i18n="recogKind.auto">自动判断</option>
+              <option value="jianpu" data-i18n="recogKind.jianpuAs">按简谱识别</option>
+              <option value="staff" data-i18n="recogKind.staffAs">按五线谱识别</option>
+            </select>
+            <span class="select-chevron" aria-hidden="true">⌄</span>
+          </label>
+        </div>
+        <div class="tool-group context-tool-group playback-tools">
+          <span class="tool-label" data-i18n="toolbar.listen">试听</span>
+          <button id="btn-play" class="icon-text playback-button" aria-label="播放" data-i18n-aria="play.play">
+            <span class="playback-icon" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M2 0.8 L9.2 5 L2 9.2 Z" fill="currentColor"/></svg></span>
+            <span class="playback-label" data-i18n="play.play">播放</span>
+          </button>
+          <button id="btn-stop" class="icon-button playback-stop" title="停止试听（回到曲首）" aria-label="停止" data-i18n-title="play.stop.title" data-i18n-aria="play.stop" disabled><svg class="playback-stop-icon" viewBox="0 0 10 10" aria-hidden="true"><rect x="0.8" y="0.8" width="8.4" height="8.4" rx="1.2" fill="currentColor"/></svg></button>
+          <input id="play-progress" class="play-progress" type="range" min="0" max="1" step="any" value="0" aria-label="播放进度" data-i18n-aria="play.progress" disabled>
+          <button id="play-time" class="play-time" aria-label="播放时间" data-i18n-aria="play.time">0:00 / 0:00</button>
+          <label class="select-wrap">
+            <select id="sel-speed" aria-label="播放速度" data-i18n-aria="play.speed"></select>
+            <span class="select-chevron" aria-hidden="true">⌄</span>
+          </label>
+          <button id="btn-loop" class="playback-toggle" aria-pressed="false" title="循环播放：谱面上选了一段就循环这一段，没选循环整首" data-i18n-title="play.loop.title" data-i18n="play.loop">循环</button>
+          <button id="btn-metronome" class="playback-toggle" aria-pressed="false" title="节拍器：试听时每拍响一声（小节第一拍高一些）" data-i18n-title="play.metronome.title" data-i18n="play.metronome">节拍</button>
+        </div>
+        <span class="toolbar-spacer"></span>
+        <div class="tool-group mobile-view-switch" aria-label="移动端工作区视图" data-i18n-aria="toolbar.mobileView">
+          <button id="btn-mobile-code" aria-pressed="false" data-i18n="toolbar.mobileCode">源码</button>
+          <button id="btn-mobile-score" class="active" aria-pressed="true" data-i18n="toolbar.mobileScore">预览</button>
+        </div>
+      </div>
+
+      <div id="body">
+        <section id="code-pane-shell" class="workspace-pane" aria-label="乐谱源码" data-i18n-aria="pane.code">
+          <div class="pane-heading">
+            <span data-i18n="pane.code">乐谱源码</span>
+            <span id="code-pane-meta" class="pane-meta">JPWABC</span>
+            <!-- 源码格式下拉：就在格式标签这个位置换着显示（识别结果、打开的文件都能切，顶掉标签） -->
+            <label id="doc-format-field" class="pane-select-field" data-context-control hidden>
+              <span class="sr-only" data-i18n="pane.docFormat">源码格式</span>
+              <select id="sel-doc-format" title="切换源码格式（识别结果不重新识别；打开的文件切回「原文」可还原）" aria-label="源码格式" data-i18n-title="pane.docFormat.title" data-i18n-aria="pane.docFormat"></select>
+              <span class="select-chevron" aria-hidden="true">⌄</span>
+            </label>
+            <!-- 转换丢了什么、怎么回到原稿（editor/formatswitch.ts::DocFormatSource.note） -->
+            <span id="doc-format-note" class="pane-note" hidden></span>
+          </div>
+          <div id="code-pane"></div>
+        </section>
+        <!-- 三栏分隔条：拖动改宽度、双击复位（editor/splitters.ts） -->
+        <div id="split-code" class="pane-splitter" role="separator" aria-orientation="vertical" title="拖动调整宽度，双击复位" data-i18n-title="pane.splitter.title"></div>
+        <section id="score-pane-shell" class="workspace-pane" aria-label="排版" data-i18n-aria="pane.score">
+          <div class="pane-heading">
+            <span data-i18n="pane.score">排版</span>
+            <div class="pane-heading-actions">
+              <span id="visual-mode" class="visual-mode" title="可视化编辑：编辑模式（方块光标）改选中的元素，插入模式（竖线光标）在光标处插入；Insert / Esc 切换" data-i18n-title="pane.visualMode.title" hidden>编辑</span>
+              <button id="btn-palette" class="palette-button" aria-pressed="false" title="记号面板：用鼠标点唱名、八度、时值、记号、换行" data-i18n-title="pane.palette.title" data-i18n="pane.palette">面板</button>
+              <button id="btn-beat-check" class="beat-check-button" aria-pressed="true" title="小节时值自检：拍数与拍号对不上的小节标红" data-i18n-title="pane.beatCheck.title" data-i18n="pane.beatCheck">拍</button>
+              <button id="btn-format-marks" class="format-marks-button" aria-pressed="true" title="显示格式标记：换行符 ↵ 与换页符 ⤓（Ctrl/⌘+Shift+M）" data-i18n-title="pane.formatMarks.title">¶</button>
+              <div id="view-mode-switch" class="preview-mode-switch" aria-label="排版模式" data-i18n-aria="view.aria">
+                <button id="btn-view-expanded" class="active" aria-pressed="true" title="反复与多段歌词逐段展开，一段一页" data-i18n-title="view.expanded.title" data-i18n="view.expanded">投影</button>
+                <button id="btn-view-original" aria-pressed="false" title="按原谱排一遍，多段歌词叠排、反复不展开" data-i18n-title="view.original.title" data-i18n="view.original">简谱</button>
+                <button id="btn-view-staff" aria-pressed="false" title="五线谱（需有 MusicXML 底本）" data-i18n-title="view.staff.title" data-i18n="view.staff">五线谱</button>
+                <button id="btn-view-mixed" aria-pressed="false" title="五线谱叠加简谱层（需有 MusicXML 底本）" data-i18n-title="view.mixed.title" data-i18n="view.mixed">混排</button>
+              </div>
+            </div>
+          </div>
+          <div id="visual-palette" class="visual-palette" aria-label="记号面板" data-i18n-aria="pane.paletteAria" hidden></div>
+          <div id="score-pane"></div>
+          <div id="omr-follow" class="omr-follow" hidden></div>
+          <div id="omr-side" class="omr-side" hidden></div>
+          <div id="split-side" class="pane-splitter pane-splitter-abs" role="separator" aria-orientation="vertical" title="拖动调整宽度，双击复位" data-i18n-title="pane.splitter.title" hidden></div>
+        </section>
+
+        <section id="start-screen" aria-labelledby="start-title">
+          <div class="start-content">
+            <div class="start-heading">
+              <span class="eyebrow" data-i18n="start.eyebrow">开始创作</span>
+              <h1 id="start-title" data-i18n="start.title">把乐谱带进来，可编辑，可导出</h1>
+              <p data-i18n="start.lead">本地识别、校对排版、简谱与五线谱切换、在线试听和多格式导出。</p>
+            </div>
+            <div class="start-modes">
+              <button id="btn-start-image" class="start-mode start-mode-primary">
+                <span class="mode-icon" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 10.6667C24 12.1394 22.8061 13.3333 21.3333 13.3333C19.8605 13.3333 18.6667 12.1394 18.6667 10.6667C18.6667 9.19391 19.8605 8 21.3333 8C22.8061 8 24 9.19391 24 10.6667Z" fill="#fff"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M16.0765 1.66667H15.9235C12.8457 1.66665 10.4336 1.66664 8.55161 1.91967C6.62529 2.17865 5.10527 2.71911 3.91219 3.91219C2.71911 5.10527 2.17865 6.62529 1.91967 8.55161C1.66664 10.4336 1.66665 12.8456 1.66667 15.9235V16.0765C1.66665 19.1544 1.66664 21.5664 1.91967 23.4484C2.17865 25.3747 2.71911 26.8948 3.91219 28.0879C5.10527 29.2809 6.62529 29.8213 8.55161 30.0804C10.4336 30.3333 12.8456 30.3333 15.9235 30.3333H16.0765C19.1544 30.3333 21.5664 30.3333 23.4484 30.0804C25.3747 29.8213 26.8948 29.2809 28.0879 28.0879C29.2809 26.8948 29.8213 25.3747 30.0804 23.4484C30.3333 21.5664 30.3333 19.1544 30.3333 16.0765V15.9235C30.3333 12.8456 30.3333 10.4336 30.0804 8.55161C29.8213 6.62529 29.2809 5.10527 28.0879 3.91219C26.8948 2.71911 25.3747 2.17865 23.4484 1.91967C21.5664 1.66664 19.1544 1.66665 16.0765 1.66667ZM5.3264 5.3264C6.08593 4.56685 7.11356 4.131 8.81811 3.90183C10.5514 3.66879 12.829 3.66667 16 3.66667C19.1709 3.66667 21.4485 3.66879 23.1819 3.90183C24.8864 4.131 25.914 4.56685 26.6736 5.3264C27.4332 6.08593 27.8691 7.11356 28.0981 8.81811C28.3312 10.5514 28.3333 12.829 28.3333 16C28.3333 16.6003 28.3332 17.1685 28.3316 17.7072L28.0355 17.6663C24.2437 17.1412 20.774 19.1124 19.0072 22.0835C16.7279 16.3168 10.7046 12.3841 3.97431 13.3505L3.67329 13.3939C3.68844 11.5199 3.73824 10.0349 3.90183 8.81811C4.131 7.11356 4.56685 6.08593 5.3264 5.3264Z" fill="#fff"/>
+                  </svg>
+                </span>
+                <span class="mode-copy">
+                  <strong data-i18n="start.image">图片识谱</strong>
+                  <span data-i18n="start.image.sub">上传图片，自动识别</span>
+                  <small>PNG · JPG · WEBP · PDF</small>
+                </span>
+                <span class="mode-arrow" aria-hidden="true">→</span>
+              </button>
+              <button id="btn-start-score" class="start-mode">
+                <span class="mode-icon mode-icon-score" aria-hidden="true">
+                  <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11.3465 2.66668H20.6533C20.9633 2.6666 21.2009 2.66655 21.4087 2.68687C22.8857 2.83136 24.0948 3.71944 24.6075 4.91571H7.39237C7.90505 3.71944 9.11407 2.83136 10.5912 2.68687C10.7989 2.66655 11.0365 2.6666 11.3465 2.66668Z" fill="#333"/>
+                    <path d="M8.41403 6.29749C6.55985 6.29749 5.03951 7.41716 4.53213 8.90255C4.52156 8.93351 4.51141 8.96464 4.50172 8.99591C5.03259 8.83515 5.58508 8.73012 6.14436 8.65843C7.58487 8.47375 9.40532 8.47384 11.52 8.47396H20.7095C22.8241 8.47384 24.6447 8.47375 26.0852 8.65843C26.6444 8.73012 27.1969 8.83515 27.7277 8.99591C27.7181 8.96464 27.708 8.93351 27.6973 8.90255C27.19 7.41716 25.6696 6.29749 23.8155 6.29749H8.41403Z" fill="#333"/>
+                    <path d="M15 22.6667C15 22.1144 14.5523 21.6667 14 21.6667C13.4477 21.6667 13 22.1144 13 22.6667C13 23.2189 13.4477 23.6667 14 23.6667C14.5523 23.6667 15 23.2189 15 22.6667Z" fill="#333"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M11.5632 10.0561H20.4368C24.9365 10.0561 27.1864 10.0561 28.4503 11.3718C29.714 12.6876 29.4167 14.7205 28.822 18.7861L28.258 22.6415C27.7916 25.8299 27.5585 27.424 26.3623 28.3787C25.166 29.3333 23.4016 29.3333 19.8728 29.3333H12.1271C8.5984 29.3333 6.83404 29.3333 5.63779 28.3787C4.44153 27.424 4.20835 25.8299 3.74197 22.6415L3.17801 18.7861C2.58331 14.7204 2.28596 12.6876 3.54976 11.3718C4.81356 10.0561 7.06344 10.0561 11.5632 10.0561ZM17 14C17 13.4477 16.5523 13 16 13C15.4477 13 15 13.4477 15 14V19.8373C14.6872 19.7268 14.3507 19.6667 14 19.6667C12.3431 19.6667 11 21.0099 11 22.6667C11 24.3235 12.3431 25.6667 14 25.6667C15.6568 25.6667 17 24.3235 17 22.6667V17.7596C17.8936 18.4845 19.0156 19 20 19C20.5523 19 21 18.5523 21 18C21 17.4477 20.5523 17 20 17C19.5928 17 18.8193 16.7085 18.1113 16.0804C17.4205 15.4675 17 14.7181 17 14Z" fill="#333"/>
+                  </svg>
+                </span>
+                <span class="mode-copy">
+                  <strong data-i18n="start.score">导入乐谱</strong>
+                  <span data-i18n="start.score.sub">继续编辑已有谱面</span>
+                  <small data-i18n="start.score.formats">123 · JPWABC · jianpu-ly · 文本谱 · MusicXML · ABC</small>
+                </span>
+                <span class="mode-arrow" aria-hidden="true">→</span>
+              </button>
+            </div>
+            <div class="start-footer">
+              <span class="privacy-note"><span aria-hidden="true">●</span> <span data-i18n="start.privacy">图片在本地识别，不会上传</span></span>
+              <label class="start-kind"><span data-i18n="start.recogKind">识别为</span>
+                <select id="sel-recog-kind-start" aria-label="识别类型" data-i18n-aria="toolbar.recogKind">
+                  <option value="auto" data-i18n="recogKind.auto">自动判断</option>
+                  <option value="jianpu" data-i18n="recogKind.jianpu">简谱</option>
+                  <option value="staff" data-i18n="recogKind.staff">五线谱</option>
+                </select>
+              </label>
+              <label class="start-kind" title="选好图之后先弹「原图页」：横着拍的转过来、页边裁掉、几张图排好顺序，再开始识别" data-i18n-title="start.adjustFirst.title">
+                <input id="chk-adjust-first" type="checkbox"> <span data-i18n="start.adjustFirst">识别前先调整原图</span>
+              </label>
+              <button id="btn-start-sample" class="sample-link" data-i18n="start.sample">查看示例乐谱</button>
+            </div>
+            <div id="start-feedback" hidden role="alert"></div>
+          </div>
+        </section>
+
+        <div id="recognition-progress" hidden aria-live="polite">
+          <div class="recognition-progress-card">
+            <span class="progress-spinner" aria-hidden="true"></span>
+            <div>
+              <strong data-i18n="start.progress">正在识别并生成排版</strong>
+              <span id="recognition-progress-detail" data-i18n="start.progress.sub">完成后将直接显示可编辑的乐谱</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer id="statusbar" class="statusbar">
+        <div id="status" class="status-text" role="status" aria-live="polite"></div>
+        <div class="status-items">
+          <span id="sel-info" class="sel-info" title="选中的元素：声部、第几小节第几拍、音高、时值" data-i18n-title="pane.selInfo.title" hidden></span>
+          <span id="beat-count" class="beat-count" title="点一下跳到下一处" data-i18n-title="pane.beatCount.title" hidden></span>
+          <button id="btn-doubt" class="doubt-count" title="识别时把握不大的音与歌词字（核对视图里黄框标出）：点一下跳到下一处" data-i18n-title="toolbar.doubt.title" hidden></button>
+          <span class="status-sep status-sep-code" aria-hidden="true"></span>
+          <label class="status-check" title="显示代码区（取消勾选收起，谱面占满；并排时原图与排版稿各占一半）" data-i18n-title="status.code.title">
+            <input id="chk-code" type="checkbox" checked>
+            <span data-i18n="status.code">源码</span>
+          </label>
+          <!-- 核对方式统一一个下拉（editor/comparemode.ts）：不核对、排版稿里的并排 / 片段、核对视图的三种叠加。
+               下面隐藏的几个是它驱动的老控件（id 与接线不变，显隐仍表示「这一项现在能不能用」） -->
+          <label id="compare-field" class="status-select-field" hidden>
+            <span class="status-label" data-i18n="status.recogView">核对</span>
+            <select id="sel-compare" title="核对方式" aria-label="核对方式" data-i18n-title="status.compare.title" data-i18n-aria="status.compare.aria">
+              <option value="none" data-i18n="status.compare.none">不核对</option>
+              <option value="side" data-i18n="toolbar.srcSide">并排原图</option>
+              <option value="follow" data-i18n="toolbar.srcFollow">原图片段</option>
+              <option value="floating" data-i18n="toolbar.recogView.floating">附近浮窗</option>
+              <option value="inplace" data-i18n="toolbar.recogView.inplace">原位叠加</option>
+              <option value="original" data-i18n="toolbar.recogView.original">仅原图</option>
+            </select>
+            <span class="select-chevron" aria-hidden="true">⌄</span>
+          </label>
+          <div class="compare-legacy" hidden>
+            <button id="btn-recognize" data-context-control title="将识别结果与上传原图进行对照" data-i18n-title="toolbar.recognize.title" data-i18n="toolbar.recognize" hidden>原图对照</button>
+            <button id="btn-src-side" data-context-control aria-pressed="false" title="排版稿左边铺整页原图：选中的音框出来，点原图上的音选中排版稿里那个" data-i18n-title="toolbar.srcSide.title" data-i18n="toolbar.srcSide" hidden>并排原图</button>
+            <button id="btn-src-follow" data-context-control aria-pressed="false" title="在排版稿里选中音符时，右下角小窗显示原图上对应的那一行并框出这个音" data-i18n-title="toolbar.srcFollow.title" data-i18n="toolbar.srcFollow" hidden>原图片段</button>
+            <label id="recog-view-field" class="status-select-field" data-context-control hidden>
+              <span class="status-label" data-i18n="status.recogView">对照</span>
+              <select id="sel-recog-view" title="原图对照方式" aria-label="原图对照方式" data-i18n-title="toolbar.recogView" data-i18n-aria="toolbar.recogView">
+                <option value="floating" data-i18n="toolbar.recogView.floating">附近浮窗</option>
+                <option value="inplace" data-i18n="toolbar.recogView.inplace">原位叠加</option>
+                <option value="original" data-i18n="toolbar.recogView.original">仅原图</option>
+              </select>
+              <span class="select-chevron" aria-hidden="true">⌄</span>
+            </label>
+          </div>
+          <span class="status-sep" aria-hidden="true"></span>
+          <div class="tool-group">
+            <span class="tool-label" data-i18n="toolbar.zoom">缩放</span>
+            <button id="btn-zoom-out" class="icon-button" title="缩小 (Ctrl/⌘ -)" aria-label="缩小" data-i18n-title="toolbar.zoomOut.title" data-i18n-aria="toolbar.zoomOut">−</button>
+            <button id="btn-zoom-reset" title="复位 (Ctrl/⌘ 0)" data-i18n-title="toolbar.zoomReset.title">100%</button>
+            <button id="btn-zoom-in" class="icon-button" title="放大 (Ctrl/⌘ +)" aria-label="放大" data-i18n-title="toolbar.zoomIn.title" data-i18n-aria="toolbar.zoomIn">＋</button>
+          </div>
+          <div class="tool-group">
+            <span class="tool-label" data-i18n="toolbar.page">页面</span>
+            <button id="btn-prev" class="icon-button" title="上一页" aria-label="上一页" data-i18n-title="toolbar.prev" data-i18n-aria="toolbar.prev">‹</button>
+            <button id="btn-next" class="icon-button" title="下一页" aria-label="下一页" data-i18n-title="toolbar.next" data-i18n-aria="toolbar.next">›</button>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <!-- hidden off-screen svg used for getBBox/getComputedTextLength measurement -->
+    <svg id="measure-svg" width="0" height="0" aria-hidden="true"></svg>
+  </body>
+</html>
