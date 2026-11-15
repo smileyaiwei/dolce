@@ -21,7 +21,7 @@ jobs:
       - run: npm run build
       - name: Publish dist branch
         run: |
-          cd dist
+          cd out/dist
           git init -b dist
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
